@@ -5,6 +5,6 @@ import com.example.knyaz.models.User
 
 class MainViewModel : ViewModel() {
 
-    val user = User(3)
+    val user = User(5)
 
 }

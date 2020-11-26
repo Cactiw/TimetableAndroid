@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.Volley
 import com.example.knyaz.MainViewModel
 import com.example.knyaz.R
-import com.example.knyaz.models.Pair
+import com.example.knyaz.models.PairsCell
 
 class DashboardFragment : Fragment() {
 
@@ -41,20 +42,27 @@ class DashboardFragment : Fragment() {
         val recycler = view.findViewById<RecyclerView>(R.id.recycler)
         recycler.layoutManager = LinearLayoutManager(context)
 
+        dashboardViewModel.toastLiveData.observe(viewLifecycleOwner) { text: String ->
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+        }
+
         dashboardViewModel.errorLiveData.observe(viewLifecycleOwner) { error: String ->
             textView.text = error
             textView.visibility = View.VISIBLE
             recycler.visibility = View.GONE
         }
 
-        dashboardViewModel.resultLiveData.observe(viewLifecycleOwner) { response: List<Pair> ->
+        dashboardViewModel.resultLiveData.observe(viewLifecycleOwner) { response: List<PairsCell> ->
             textView.text = response.toString()
             textView.visibility = View.GONE
             recycler.visibility = View.VISIBLE
 
             val adapter = recycler.adapter
             if (adapter == null) {
-                val newAdapter = PairsAdapter(LayoutInflater.from(context))
+                val newAdapter = PairsAdapter(
+                    LayoutInflater.from(context),
+                    dashboardViewModel::onCellClicked
+                )
                 newAdapter.submitList(response)
                 recycler.adapter = newAdapter
             } else {
